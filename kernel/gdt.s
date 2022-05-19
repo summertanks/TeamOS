@@ -14,7 +14,7 @@ _setgdt:
 
 	; long jump to enable GDT
 	; seg 0x8 - first entry to GDT - Kernel Code
-	jmp 0x8:enable_gdt
+	jmp 0x8:.enable_gdt
 
 .enable_gdt:
 	mov cx, 0x10 ;; data seg

@@ -2,7 +2,7 @@ GCCPARAMS  = -m32 -fno-use-cxa-atexit -fno-builtin -fno-rtti -fno-exceptions
 NASMPARAMS = -felf32
 LDPARAMS   = -melf_i386
 
-objects= loader.o kernel.o vga.o
+objects= loader.o kernel.o vga.o gdt.o idt.o pic.o
 
 %.o : %.c
 	gcc $(GCCPARAMS) -o $@ -c $<
@@ -23,8 +23,8 @@ run: OS.iso
 	qemu-system-i386 -cdrom OS.iso
 
 clean: 
-	rm *.o
-	rm OS.iso
-	rm kernel.bin
-	rm isodir/boot/kernel.bin
+	rm -f *.o
+	rm -f OS.iso
+	rm -f kernel.bin
+	rm -f isodir/boot/kernel.bin
 
