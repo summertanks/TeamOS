@@ -11,8 +11,8 @@
 %define MULTIBOOT_TAG_TYPE_END			0
 
 extern	_kernel_start
-extern _BSS_START_
-extern _BSS_END_
+;extern __BSS_START
+;extern __BSS_END
 
 [BITS 32]
 section .multiboot
@@ -68,11 +68,11 @@ _start:
 	mov ebp, esp
 	
 	;; zero .bss
-	mov edi, _BSS_START_
-	mov ecx, _BSS_END_
-	sub ecx, _BSS_START_
-	mov eax, 0
-	rep stosb
+;	mov edi, __BSS_START
+;	mov ecx, __BSS_END
+;	sub ecx, __BSS_START
+;	mov eax, 0
+;	rep stosb
 
 	call	_kernel_start
 	; should never reach here
