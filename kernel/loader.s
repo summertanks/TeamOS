@@ -1,3 +1,6 @@
+; Team OS
+; Copyright (c) 2022 Harkirat S Virk
+
 ; multiboot declarations
 %define MULTIBOOT2_HEADER_MAGIC                 0xe85250d6
 %define MULTIBOOT2_BOOTLOADER_MAGIC             0x36d76289
@@ -8,6 +11,8 @@
 %define MULTIBOOT_TAG_TYPE_END			0
 
 extern	_kernel_start
+extern _BSS_START_
+extern _BSS_END_
 
 [BITS 32]
 section .multiboot
@@ -23,7 +28,7 @@ multiboot_header:
 	dd	multiboot_header_end - multiboot_header
 	dd	-(MULTIBOOT2_HEADER_MAGIC + MULTIBOOT_ARCHITECTURE_I386 + (multiboot_header_end - multiboot_header))
 
-;ALIGN 8
+ALIGN 8
 ; framebuffer tag - optional
 ;framebuffer_tag_start:
 ;	dw	MULTIBOOT_HEADER_TAG_FRAMEBUFFER
@@ -53,11 +58,22 @@ _start:
 	; Interrupts disabled
 	; Paging disabled
 	; Stack undefined
+	
+	; save multiboot structures
+	mov DWORD [multiboot_data_magic], eax
+	mov DWORD [multiboot_data_address], ebx
 
 	; provide defined stack
-	mov	esp, kernel_stack_bottom
-	push 	eax
-	push 	ebx
+	mov esp, kernel_stack_bottom
+	mov ebp, esp
+	
+	;; zero .bss
+	mov edi, _BSS_START_
+	mov ecx, _BSS_END_
+	sub ecx, _BSS_START_
+	mov eax, 0
+	rep stosb
+
 	call	_kernel_start
 	; should never reach here
 halt:
@@ -65,6 +81,13 @@ halt:
 	hlt
 	jmp halt
 _start_end:
+
+section .data
+	global multiboot_data_magic
+	global multiboot_data_address
+
+multiboot_data_magic:		dq 0
+multiboot_data_address:		dq 0
 	
 section .bss
 

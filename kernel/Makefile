@@ -1,6 +1,6 @@
-GCCPARAMS = -m32 -fno-use-cxa-atexit -fno-builtin -fno-rtti -fno-exceptions
+GCCPARAMS  = -m32 -fno-use-cxa-atexit -fno-builtin -fno-rtti -fno-exceptions
 NASMPARAMS = -felf32
-LDPARAMS =-melf_i386
+LDPARAMS   = -melf_i386
 
 objects= loader.o kernel.o vga.o
 
@@ -10,8 +10,21 @@ objects= loader.o kernel.o vga.o
 %.o : %.s
 	nasm $(NASMPARAMS) -o $@ $<
 
-TOSKernel.bin: linker.ld $(objects)
+kernel.bin: linker.ld $(objects)
 	ld $(LDPARAMS) -T $< -o $@ $(objects)
 
-install: TOSKernel.bin
-	sudo cp $< /boot/TOSKernel.bin
+OS.iso: kernel.bin
+	cp kernel.bin isodir/boot/
+	grub-mkrescue -o OS.iso isodir
+
+build: OS.iso
+
+run: OS.iso
+	qemu-system-i386 -cdrom OS.iso
+
+clean: 
+	rm *.o
+	rm OS.iso
+	rm kernel.bin
+	rm isodir/boot/kernel.bin
+
