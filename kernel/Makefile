@@ -2,7 +2,7 @@ GCCPARAMS  = -m32 -fno-use-cxa-atexit -fno-builtin -fno-rtti -fno-exceptions
 NASMPARAMS = -felf32
 LDPARAMS   = -melf_i386
 
-objects= loader.o kernel.o vga.o gdt.o idt.o pic.o
+objects= loader.o kernel.o vga.o gdt.o idt.o pic.o nmi.o
 
 %.o : %.c
 	gcc $(GCCPARAMS) -o $@ -c $<
