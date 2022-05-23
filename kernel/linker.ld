@@ -30,8 +30,10 @@ SECTIONS
 
 	.bss BLOCK(4K) : ALIGN(4K)
 	{
+		__BSS_START = .;
 		*(COMMON)
 		*(.bss)
+		__BSS_END = .;
 	}
 
 	/DISCARD/ : { *(.fini_array*) *(.comment) }

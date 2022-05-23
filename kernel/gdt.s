@@ -7,6 +7,7 @@
 
 ALIGN 8
 	global _setgdt
+	global gdt32
 
 _setgdt:
 	; load simple GDT

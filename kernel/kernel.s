@@ -12,6 +12,8 @@ _kernel_start:
 loop:
 	jmp loop
 
+;------------------------------------------------------------
+section .data
 
 os_description db "Starting TeamOS", 0xA, 0 ; 0xA = line feed
 

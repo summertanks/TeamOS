@@ -173,11 +173,15 @@ terminal_write_string:
 	call terminal_write
 	popa
 	ret
- 
+
+
+;-------------------------------------------------------
+
+section .bss 
 ; default color  
-	terminal_color	db 	0
+	terminal_color	resb 	1
 
 ; current cursor position 
 terminal_cursor_pos:
-	terminal_column	db 	0
-	terminal_row	db 	0
+	terminal_column	resb 	1
+	terminal_row	resb 	1

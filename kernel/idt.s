@@ -86,10 +86,20 @@
 
 ; CPU does not permit an interrupt to transfer control to a procedure in a segment of lesser privilege
 
+struc idt
+.offset_high	resw	1
+.offset_low	resw	1
+.selector	resb	1
+.flags		resb	1
+endstruc
+
 section .text
 	global _setidt
 
 _setidt:
 	ret
+
+section	.bss
+;	idt_null	0
 
 
