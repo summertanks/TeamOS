@@ -28,6 +28,7 @@
 global	terminal_set_color
 global	terminal_get_color
 global	terminal_write_string
+global	terminal_clearscreen
 
 section .text
 
@@ -45,6 +46,9 @@ terminal_get_color:
 	mov al, [terminal_color]
 	ret	
 
+; Clear Screen, reset cursor
+
+
 ; Write string to terminal
 ; IN = ESI: string location
 ; OUT = ECX: string size
@@ -59,6 +63,10 @@ terminal_write_string:
 	; Check for end of string
 	cmp al, 0
 	jz .write_done
+
+	; TODO: TAB
+	; TODO: Backspace
+	; TODO: Carriage Return
 
 	; check for linefeed
 	cmp al, 0xa
@@ -169,6 +177,37 @@ terminal_putchar:
 	dec dl
  
 .save_cursor:
+	push eax
+	push ebx
+	push edx
+
+	xor eax, eax
+	mov al, VGA_WIDTH	; upper bits are 0
+	mul dl			; eax = dl * eax => y * VGA_WIDTH
+	mov dl, dh
+	xor dh, dh		; x => dl
+	add dx, ax		; added offset x 
+	mov bx, dx
+
+	mov al, 0x0E
+	mov dx, 0x3D4
+	out dx, al	; out 0x3D4, 0x0E
+
+	inc dx		; 0x3D5
+	mov al, bh
+	out dx, al	; out 0x3D5, offset_y
+
+	dec dx		; 0x3D4
+	mov al, 0x0F
+	out dx, al	; out 0x3D4, 0x0F
+
+	inc dx		; 0x3D5
+	mov al, bl	;
+	out dx, al	; out 0x3D5, offset_x
+
+	pop edx
+	pop ebx
+	pop eax
 	; Store new cursor position 
 	mov [terminal_cursor_pos], dx
 	ret
@@ -185,6 +224,28 @@ terminal_putchar:
 	inc dl
 	
 	jmp .check_screen_end
+
+; Clear Screen
+terminal_clearscreen:
+	push edx
+	push ecx
+	push eax
+	push edi
+
+	xor edx, edx
+	call terminal_putchar.save_cursor
+	
+	xor eax, eax
+	mov ecx, VGA_WIDTH * VGA_HEIGHT * 2 	
+	mov edi, VGA_BUFFER
+	repz stosb
+
+	pop edi
+	pop eax
+	pop ecx
+	pop edx
+	ret
+
 	
 ;-------------------------------------------------------
 

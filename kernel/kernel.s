@@ -27,6 +27,7 @@
 
 extern	init_vga
 extern	terminal_write_string
+extern	terminal_clearscreen
 
 global	_kernel_start
 
@@ -41,4 +42,5 @@ section .data
 
 os_description 	db "Starting TeamOS", 0xA, 	; 0xA = line feed
 		db "Copyright (c) Harkirat S Virk", 0xA,
-		db "Complied ", __?UTC_DATE?__, " ", __?UTC_TIME?__,  0xA, 0
+		db "Compiled ", __?UTC_DATE?__, " ", __?UTC_TIME?__, 0xA, 0
+
