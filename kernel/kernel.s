@@ -41,4 +41,4 @@ section .data
 
 os_description 	db "Starting TeamOS", 0xA, 	; 0xA = line feed
 		db "Copyright (c) Harkirat S Virk", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA, 0
+		db "Complied ", __?UTC_DATE?__, " ", __?UTC_TIME?__,  0xA, 0
