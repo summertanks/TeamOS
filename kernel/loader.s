@@ -39,6 +39,7 @@
 	%include "include/multiboot2.inc"
 
 ; external references - functions / definations
+	extern	terminal_write_string
 	extern	_kernel_start
 	extern	gdt32
 	extern __BSS_START
@@ -145,9 +146,15 @@ _start:
 
 	; check integrity of multiboot structures
 	xor edx, MULTIBOOT2_BOOTLOADER_MAGIC
-	jnz halt	; die die die my darling, did not match magic, 
-			; TODO should print something
+	jz .magic_check_ok
 	
+	; die die die my darling, did not match magic, 
+	mov esi, missing_magic
+	call terminal_write_string	
+	jmp halt
+
+.magic_check_ok:
+
 	; Total header size not really required, we assume the header to 
 	; well formed, that is, have MULTIBOOT_TAG_END tag and the sizes match
 	; Also if one isnt, no assurances that the other would be 
@@ -245,7 +252,7 @@ _start_end:
 ;-----------------------------------------------------------------------------
 section .data
 
-
+missing_magic	db	"FATAL: Incorrect Multiboot Magic, Halting...", 0xA, 0
 
 ;	.loader_name	db ?
 ;	.command_line	db ?

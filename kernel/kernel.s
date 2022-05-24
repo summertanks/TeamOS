@@ -40,36 +40,5 @@ loop:
 section .data
 
 os_description 	db "Starting TeamOS", 0xA, 	; 0xA = line feed
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA,
-		db "32 Bit Kernel from Scratch in assembly for training", 
-		db "32 Bit Kernel from Scratch in assembly for training", 
-		db "32 Bit Kernel from Scratch in assembly for training", 
-		db "32 Bit Kernel from Scratch in assembly for training",
-		db "32 Bit Kernel from Scratch in assembly for training", 
-		db "32 Bit Kernel from Scratch in assembly for training", 
-		db "32 Bit Kernel from Scratch in assembly for training", 
-		db "32 Bit Kernel from Scratch in assembly for training", 
-		db "32 Bit Kernel from Scratch in assembly for training", 
-		db "32 Bit Kernel from Scratch in assembly for training", 0xA
-		db "Copyright (c) Harkirat S Virk", 0xA, 0
+		db "Copyright (c) Harkirat S Virk", 0xA,
+		db "32 Bit Kernel from Scratch in assembly for training", 0xA, 0
