@@ -22,6 +22,7 @@
 ; SOFTWARE.
 
 	%include "include/vga.inc" 
+;	%include "include/proc32.mac"
 
 [BITS 32]
 
