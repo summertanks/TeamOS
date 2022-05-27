@@ -21,7 +21,7 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 
-	%include "include/vga.inc" 
+;	%include "include/vga.inc" 
 
 [BITS 32]
 
@@ -41,6 +41,6 @@ loop:
 section .data
 
 os_description 	db "Starting TeamOS", 0xA, 	; 0xA = line feed
-		db "Copyright (c) Harkirat S Virk", 0xA,
+		db "Copyright (c) 2022 Harkirat S Virk", 0xA,
 		db "Compiled ", __?UTC_DATE?__, " ", __?UTC_TIME?__, 0xA, 0
 

@@ -36,7 +36,7 @@
 ;	- call the big boss _kernel_start
  
 ; multiboot declarations
-	%include "include/multiboot2.inc"
+	%include "include/arch/common/multiboot2.inc"
 
 ; external references - functions / definations
 	extern	terminal_write_string

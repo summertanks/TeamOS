@@ -1,26 +1,27 @@
-GCCPARAMS  = -m32 -fno-use-cxa-atexit -fno-builtin -fno-rtti -fno-exceptions
-NASMPARAMS = -felf32
-LDPARAMS   = -melf_i386
+CC := gcc
+LD := ld
+ASM := nasm
 
-objects= loader.o kernel.o vga.o gdt.o idt.o pic.o nmi.o
+CCPARAMS  := -m32 -fno-use-cxa-atexit -fno-builtin -fno-rtti -fno-exceptions
+ASMPARAMS := -felf32
+LDPARAMS  := -melf_i386
+
+ARCHOBJS = loader.o kernel.o vga.o gdt.o idt.o nmi.o pic.o tss.o
+OBJS += $(foreach obj, $(ARCHOBJS), $(addprefix arch/i386/, $(obj)))
+
+all: kernel.bin
 
 %.o : %.c
-	gcc $(GCCPARAMS) -o $@ -c $<
+	@echo compiling $<
+	$(CC) $(GCCPARAMS) -o $@ -c $<
 
 %.o : %.s
-	nasm $(NASMPARAMS) -o $@ $<
+	@echo compiling $<
+	$(ASM) $(ASMPARAMS) -o $@ $<
 
-kernel.bin: linker.ld $(objects)
-	ld $(LDPARAMS) -T $< -o $@ $(objects)
-
-OS.iso: kernel.bin
-	cp kernel.bin isodir/boot/
-	grub-mkrescue -o OS.iso isodir
-
-build: OS.iso
-
-run: OS.iso
-	qemu-system-i386 -cdrom OS.iso
+kernel.bin: linker.ld $(OBJS)
+	@echo Starting to link $(ARCHOBJS)
+	$(LD) $(LDPARAMS) -T $< -o $@ $(OBJS)
 
 clean: 
 	rm -f *.o
