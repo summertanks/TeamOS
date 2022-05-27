@@ -1,10 +1,11 @@
 ARCH = i386
+KERNEL = kernel.bin
 
 all: 
 	@echo "Building Kernel"
 	make -C ./kernel
 
-os.iso: kernel.bin
+os.iso: kernel/$(KERNEL)
 	cp kernel/kernel.bin isodir/boot/
 	grub-mkrescue -o OS.iso isodir
 

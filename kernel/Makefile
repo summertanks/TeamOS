@@ -24,8 +24,6 @@ kernel.bin: linker.ld $(OBJS)
 	$(LD) $(LDPARAMS) -T $< -o $@ $(OBJS)
 
 clean: 
-	rm -f *.o
-	rm -f OS.iso
+	rm -f $(OBJS)
 	rm -f kernel.bin
-	rm -f isodir/boot/kernel.bin
 
