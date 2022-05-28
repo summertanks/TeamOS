@@ -51,11 +51,11 @@ terminal_get_color:
 
 ; Write string to terminal
 ; IN = ESI: string location
-; OUT = ECX: string size
+
 terminal_write_string:
 	pusha
 	xor ecx, ecx
-
+	
 	; Print String 
 .write:
 	mov al, [esi]

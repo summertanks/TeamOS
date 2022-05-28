@@ -2,18 +2,22 @@ CC := gcc
 LD := ld
 ASM := nasm
 
-CCPARAMS  := -m32 -fno-use-cxa-atexit -fno-builtin -fno-rtti -fno-exceptions
+
+CCPARAMS  := -m32 -O1 -fno-pic -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs
 ASMPARAMS := -felf32
 LDPARAMS  := -melf_i386
 
-ARCHOBJS = loader.o kernel.o vga.o gdt.o idt.o nmi.o pic.o tss.o
+KERNOBJS = kernel.o
+ARCHOBJS = loader.o vga.o gdt.o idt.o nmi.o pic.o tss.o
+
 OBJS += $(foreach obj, $(ARCHOBJS), $(addprefix arch/i386/, $(obj)))
+OBJS += $(KERNOBJS)
 
 all: kernel.bin
 
 %.o : %.c
 	@echo compiling $<
-	$(CC) $(GCCPARAMS) -o $@ -c $<
+	$(CC) $(CCPARAMS) -o $@ -c $<
 
 %.o : %.s
 	@echo compiling $<
