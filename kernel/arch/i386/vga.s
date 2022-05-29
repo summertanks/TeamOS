@@ -22,6 +22,7 @@
 ; SOFTWARE.
 
 	%include "include/arch/common/vga.inc" 
+	%include "include/arch/common/c32.mac"
 
 [BITS 32]
 
@@ -52,7 +53,9 @@ terminal_get_color:
 ; Write string to terminal
 ; IN = ESI: string location
 
+;proc terminal_write_string
 terminal_write_string:
+
 	pusha
 	xor ecx, ecx
 	
@@ -86,6 +89,7 @@ terminal_write_string:
 	; TODO : modify ecx in stack
 	popa
 	ret
+;endproc
 
 ; Puts character at current cursor position
 ; IN = al: ASCII char

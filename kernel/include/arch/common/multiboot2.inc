@@ -66,14 +66,6 @@ struc multiboot_tag_bootdev
 	.subpart	resd	1
 endstruc
 
-struc multiboot_tag_mmap
-	.tag		resd	1
-	.tag_size	resd	1
-	.entry_size	resd	1
-	.entry_version	resd	1
-	.entries	resb	multiboot_mmap_entry.size
-endstruc
-
 struc multiboot_mmap_entry
 	.addr		resq	1
 	.len		resq	1
@@ -81,5 +73,14 @@ struc multiboot_mmap_entry
 	.zero		resd	1
 	.size:
 endstruc
+
+struc multiboot_tag_mmap
+        .tag            resd    1
+        .tag_size       resd    1
+        .entry_size     resd    1
+        .entry_version  resd    1
+        .entries        resb    multiboot_mmap_entry.size
+endstruc
+
 
 %endif ; MULTIBOOT_HEADER
