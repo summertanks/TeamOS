@@ -1,6 +1,37 @@
+; Team OS
+; MIT License
 
+; Copyright (c) 2022 Harkirat Singh Virk
 
+; Permission is hereby granted, free of charge, to any person obtaining a copy
+; of this software and associated documentation files (the "Software"), to deal
+; in the Software without restriction, including without limitation the rights
+; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the Software is
+; furnished to do so, subject to the following conditions:
 
+; The above copyright notice and this permission notice shall be included in all
+; copies or substantial portions of the Software.
+
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+; SOFTWARE.
+
+%ifndef __C32_MAC_
+%define __C32_MAC_
+
+;------------------------------------------------------------------------------
+; macro - proc
+; Declare a procedure/ function. Makes the procedure/ function global
+; Parameters are
+;	- Mandatory function name
+;	- Optional registers to save, registers will be saved in sequence of declaration
+; Function is aligned 16
+; Has to be coupled with endproc 'functionname', else manually restore
 
 %imacro	proc 1-*		; begin a procedure definition
 	%push %1
@@ -8,17 +39,30 @@
 	align 16
 
 %1:	
-	%xdefine %$proc.name %1
-	push ebp
-	mov ebp,esp
-	%define %$proc.regs %{2:-1}
-	%assign %$proc.regsize (%0 - 1)*4
-	%assign %$proc.regnum %0-1
-	mpush %$proc.regs
+	%xdefine %$proc.name %1			; expand at declaration
+	push ebp				; 
+	mov ebp,esp				; Setup base pointer
+	%if %0 > 1
+		%define %$proc.regs %{2:-1}	; Collect registers to be saved
+	%else 
+		%define %$proc.regs 
+	%endif
+	%assign %$proc.regnum %0-1		; Num of Regs = Total number of args - 1 
+	%assign %$proc.regsize (%$proc.regnum) * 4	; Total size = (num of registers) * 4 bytes
+
+	mpush %$proc.regs			; push all registers
 
 %endmacro
 
 
+
+;------------------------------------------------------------------------------
+; macro - args
+; Used to designate placeholders for variables pushed in stack by caller
+; Variable name expands to [ebp + xx] 
+; Parameters
+;	- Manadatory variable name
+;	- optional variable size, assumed as 4 otherwise
 
 %imacro	arg 0-1 4		; used with the argument name as a label
 	%00 equ %$arg
@@ -26,34 +70,51 @@
 %endmacro
 
 
-%push tmp
+;------------------------------------------------------------------------------
+; macro - endproc
+; Compliments the proc macro, cleans up and returns to caller
+; Saved registers are restored
+; Parameters 
+;	- Optional procedure name, defaults to one in context stack
+
+%push tmp	; Trick to avoid error: `%$proc.name': context stack is empty
+		; credit:  Andrew Zabolotny
 %imacro endproc 0-1 %$proc.name
-;	%ifnctx proc
-	%ifndef %$proc.regsize
+	%ifndef %$proc.regsize		; just making sure, is used in conjuction with macro proc
 		%error Mismatched 'endproc/proc'
-	%elifnidn %$proc.name, %1
+	%elifnidn %$proc.name, %1	; and the right proc
 		%error "endproc name mismatch"
 	%else
-		mpop %$proc.regs
-		leave
+		mpop %$proc.regs	; lets restore registers
+		leave			; au revoir
 		ret
-__end_%$proc.name:		; useful for calculating function size
-		%pop
+__end_%$proc.name:			; useful for calculating function size
+		%pop			; restore context stack
 	%endif
 %endmacro
 %pop
 
+;------------------------------------------------------------------------------
+; macro - mpush
+; Used to push registers to stack, purposely not overloaded
+; Parameters
+;	- Optional registers, not kept mandatory since called from proc too
 %macro mpush	0-*
 	%rep %0
-		push %1
+		push %1	
 		%rotate 1
 	%endrep
 %endmacro
 
+; macro - mpop
+; Used to restore registers from stack, purposely not overloaded
+; Parameters
+;	- Optional registers, not kept mandatory since called from endproc too
 %macro mpop	0-*
 	%rep %0
-		%rotate -1
+		%rotate -1	; restore in reverse order, FILO
 		pop %1
 	%endrep
 %endmacro
 
+%endif	; __C32_MAC_
