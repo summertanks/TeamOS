@@ -52,11 +52,9 @@ terminal_get_color:
 
 ; Write string to terminal
 ; IN = ESI: string location
+; Used registers - ESI, EAX, ECX
+proc terminal_write_string,eax,ecx,esi
 
-;proc terminal_write_string
-terminal_write_string:
-
-	pusha
 	xor ecx, ecx
 	
 	; Print String 
@@ -87,9 +85,7 @@ terminal_write_string:
 
 .write_done:
 	; TODO : modify ecx in stack
-	popa
-	ret
-;endproc
+endproc
 
 ; Puts character at current cursor position
 ; IN = al: ASCII char

@@ -2,14 +2,20 @@
 
 
 
-%imacro	proc 1			; begin a procedure definition
-	%push proc
+%imacro	proc 1-*		; begin a procedure definition
+	%push %1
 	global %1
+	align 16
 
-%1:	push ebp
+%1:	
+	%xdefine %$proc.name %1
+	push ebp
 	mov ebp,esp
-	%assign %$arg 8
-	%define %$procname %1
+	%define %$proc.regs %{2:-1}
+	%assign %$proc.regsize (%0 - 1)*4
+	%assign %$proc.regnum %0-1
+	mpush %$proc.regs
+
 %endmacro
 
 
@@ -20,14 +26,34 @@
 %endmacro
 
 
-
-%imacro endproc 0
-	%ifnctx proc
+%push tmp
+%imacro endproc 0-1 %$proc.name
+;	%ifnctx proc
+	%ifndef %$proc.regsize
 		%error Mismatched 'endproc/proc'
+	%elifnidn %$proc.name, %1
+		%error "endproc name mismatch"
 	%else
+		mpop %$proc.regs
 		leave
 		ret
-__end_%$procname:		; useful for calculating function size
+__end_%$proc.name:		; useful for calculating function size
 		%pop
 	%endif
 %endmacro
+%pop
+
+%macro mpush	0-*
+	%rep %0
+		push %1
+		%rotate 1
+	%endrep
+%endmacro
+
+%macro mpop	0-*
+	%rep %0
+		%rotate -1
+		pop %1
+	%endrep
+%endmacro
+
