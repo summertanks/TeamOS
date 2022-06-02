@@ -1,23 +1,24 @@
 ARCH = i386
 KERNEL = kernel.bin
 
-all: 
+all: os.iso
+kernel/$(KERNEL):	
 	@echo "Building Kernel"
 	make -C ./kernel
 
 os.iso: kernel/$(KERNEL)
 	cp kernel/kernel.bin isodir/boot/
-	grub-mkrescue -o OS.iso isodir
+	grub-mkrescue -o os.iso isodir
 
 build: os.iso
 
 run: os.iso
-	qemu-system-i386 -cdrom OS.iso
+	qemu-system-i386 -cdrom os.iso
 
 debug: os.iso
-	qemu-system-i386 -cdrom OS.iso -s -S
+	qemu-system-i386 -cdrom os.iso -s -S
 
 clean:
 	make -C ./kernel clean
-	rm -f OS.iso
+	rm -f os.iso
 	rm -f isodir/boot/kernel.bin

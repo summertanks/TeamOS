@@ -55,7 +55,10 @@ terminal_get_color:
 ; Used registers - ESI, EAX, ECX
 proc terminal_write_string,eax,ecx,esi
 
+arg	_strloc,4
+
 	xor ecx, ecx
+	mov esi, _strloc
 	
 	; Print String 
 .write:
@@ -72,6 +75,8 @@ proc terminal_write_string,eax,ecx,esi
 	; check for linefeed
 	cmp al, 0xa
 	jne .write_putchar
+
+	; 
 	call terminal_putchar.linefeed
 	jmp .write_next
 

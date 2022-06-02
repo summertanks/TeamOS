@@ -49,7 +49,7 @@
 	%endif
 	%assign %$proc.regnum %0-1		; Num of Regs = Total number of args - 1 
 	%assign %$proc.regsize (%$proc.regnum) * 4	; Total size = (num of registers) * 4 bytes
-
+	%assign %$proc.argoffset 8
 	mpush %$proc.regs			; push all registers
 
 %endmacro
@@ -64,9 +64,22 @@
 ;	- Manadatory variable name
 ;	- optional variable size, assumed as 4 otherwise
 
-%imacro	arg 0-1 4		; used with the argument name as a label
-	%00 equ %$arg
-	%assign %$arg %1+%$arg
+%imacro	arg 1-2 4			; used with the argument name as a label
+	%ifndef %$proc.argoffset	;
+		%error "arg not in proc context"
+	%else
+		%if %2 == 4
+			%xdefine %1 dword [ebp + %$proc.argoffset]
+		%elif %2 == 2
+			%xdefine %1 word [ebp + %$proc.argoffset]
+		%elif %2 == 1
+			%xdefine %1 byte [ebp + %$proc.argoffset]
+		%else
+			%error "Unsupported variable size"
+		%endif
+		
+		%assign %$proc.argoffset %2 + %$proc.argoffset
+	%endif
 %endmacro
 
 
