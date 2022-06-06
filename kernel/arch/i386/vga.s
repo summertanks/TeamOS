@@ -35,10 +35,16 @@ section .text
 
 ; Set default color
 ; IN al -> 8 bit : foreground 4 bits | background 4 bits
-terminal_set_color:
+proc terminal_set_color,eax
+
+arg	_color,1
+	
+	mov al, _color
+
 	; saving to default
 	mov [terminal_color], al
-	ret
+
+endproc
 
 ; Get default color
 ; OUT al -> 8 bit : foreground 4 bits | background 4 bits
