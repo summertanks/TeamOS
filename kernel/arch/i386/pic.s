@@ -2,6 +2,29 @@
 ;
 ;
 
+;	line     interrupt  function
+
+;	IRQ0      08        system timer
+;	IRQ1      09        keyboard
+;	IRQ2      0A        PC/XT: EGA vertical retrace or maybe available
+;	                    PC/AT: see explanation below
+;	IRQ3      0B        COM2 or maybe available
+;	IRQ4      0C        COM1
+;	IRQ5      0D        PC/XT: hard disk drive
+;	                    PC/AT: LPT2 or maybe available
+;	IRQ6      0E        floppy disk drive
+;	IRQ7      0F        LPT1
+;	IRQ8      70        PC/AT: CMOS Real Time Clock
+;	IRQ9      71        PC/AT: see explanation below
+;	IRQ10     72        PC/AT: probably available
+;	IRQ11     73        PC/AT: probably available
+;	IRQ12     74        PC/AT: probably available
+;	                    PS/2: mouse
+;	IRQ13     75        PC/AT: numeric coprocessor
+;	IRQ14     76        PC/AT: hard disk drive
+;	IRQ15     77        PC/AT: probably available
+
+
 [BITS 32]
 
 %define PIC_Master_IRQ		0x20	; 0x20h -> 0x2fh - After remapping
@@ -19,7 +42,7 @@
 %define PIC_READ_ISR		0x0B	; OCW3 irq service next CMD read
 
 
-; TOTO - Handle spurious IRQ wiki.osdev.org/PIC
+; TODO - Handle spurious IRQ wiki.osdev.org/PIC
 
 ; Initialise the IRQ
 pic_init_IRQ:
