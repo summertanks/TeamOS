@@ -180,7 +180,36 @@ terminal_putchar:
 	pop esi
 
 	dec dl
- 
+
+
+;	CRT Microcontroller - Index Register
+;	Index Offset	CRT Controller Register
+;	0x0	Horizontal Total
+;	0x1	Horizontal Display Enable End
+;	0x2	Start Horizontal Blanking
+;	0x3	End Horizontal Blanking
+;	0x4	Start Horizontal Retrace Pulse
+;	0x5	End Horizontal Retrace
+;	0x6	Vertical Total
+;	0x7	Overflow
+;	0x8	Preset Row Scan
+;	0x9	Maximum Scan Line
+;	0xA	Cursor Start
+;	0xB	Cursor End
+;	0xC	Start Address High
+;	0xD	Start Address Low
+;	0xE	Cursor Location High
+;	0xF	Cursor Location Low
+;	0x10	Vertical Retrace Start
+;	0x11	Vertical Retrace End
+;	0x12	Vertical Display Enable End
+;	0x13	Offset
+;	0x14	Underline Location
+;	0x15	Start Vertical Blanking
+;	0x16	End Vertical Blanking
+;	0x17	CRT Mode Control
+;	0x18	Line Compare
+
 .save_cursor:
 	push eax
 	push ebx
