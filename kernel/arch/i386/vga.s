@@ -33,8 +33,9 @@ global	terminal_clearscreen
 
 section .text
 
+;-----------------------------------------------------------------------------
 ; Set default color
-; IN al -> 8 bit : foreground 4 bits | background 4 bits
+; IN -> 8 bit : foreground 4 bits | background 4 bits
 proc terminal_set_color,eax
 
 arg	_color,1
@@ -46,8 +47,9 @@ arg	_color,1
 
 endproc
 
+;-----------------------------------------------------------------------------
 ; Get default color
-; OUT al -> 8 bit : foreground 4 bits | background 4 bits
+; OUT -> 8 bit : foreground 4 bits | background 4 bits
 terminal_get_color:
 	; return current color
 	mov al, [terminal_color]
@@ -55,49 +57,60 @@ terminal_get_color:
 
 ; Clear Screen, reset cursor
 
-
+;----------------------------------------------------------------------------
 ; Write string to terminal
 ; IN = ESI: string location
-; Used registers - ESI, EAX, ECX
-proc terminal_write_string,eax,ecx,esi
+; Used registers - ESI, ECX
+proc terminal_write_string, esi
 
 arg	_strloc,4
 
-	xor ecx, ecx
 	mov esi, _strloc
 	
 	; Print String 
 .write:
 	mov al, [esi]
 
-	; Check for end of string
+	; Check for end of string '\0'
 	cmp al, 0
 	jz .write_done
 
+.write_tab:
 	; TODO: TAB
+	; cmp al, 0x9
+	; jne .write_linefeed
+
+	; movzx ecx, 0x8
+	; rep 
 	; TODO: Backspace
 	; TODO: Carriage Return
 
+.write_linefeed:
 	; check for linefeed
 	cmp al, 0xa
 	jne .write_putchar
-
-	; 
 	call terminal_putchar.linefeed
+	
+	; on to the next byte
 	jmp .write_next
 
 .write_putchar:
+	; place character
 	call terminal_putchar
 
 .write_next:
+	; move to the next byte
 	inc esi
-	inc ecx
 	jmp .write
 
 .write_done:
-	; TODO : modify ecx in stack
+	; return number of characters printed
+	; current string loc - starting loc
+	mov eax, esi
+	sub eax, _strloc
 endproc
 
+;-----------------------------------------------------------------------------
 ; Puts character at current cursor position
 ; IN = al: ASCII char
 terminal_putchar:
