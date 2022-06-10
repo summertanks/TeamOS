@@ -83,11 +83,11 @@ arg	_strloc,4
 	inc esi
 	jmp .write
 
-	call update_hardware_cursor
-
 .write_done:
 	; return number of characters printed
 	; current string loc - starting loc
+
+	call update_hardware_cursor
 	mov eax, esi
 	sub eax, _strloc
 endproc
