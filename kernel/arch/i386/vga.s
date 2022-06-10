@@ -61,47 +61,29 @@ terminal_get_color:
 ; Write string to terminal
 ; IN = ESI: string location
 ; Used registers - ESI, ECX
-proc terminal_write_string, esi
+proc terminal_write_string, ecx, esi
 
 arg	_strloc,4
 
+	; get string address from stack
 	mov esi, _strloc
 	
-	; Print String 
 .write:
+	; load byte to print
 	mov al, [esi]
 
 	; Check for end of string '\0'
-	cmp al, 0
+	or al, al
 	jz .write_done
 
-.write_tab:
-	; TODO: TAB
-	; cmp al, 0x9
-	; jne .write_linefeed
-
-	; movzx ecx, 0x8
-	; rep 
-	; TODO: Backspace
-	; TODO: Carriage Return
-
-.write_linefeed:
-	; check for linefeed
-	cmp al, 0xa
-	jne .write_putchar
-	call terminal_putchar.linefeed
-	
-	; on to the next byte
-	jmp .write_next
-
-.write_putchar:
 	; place character
 	call terminal_putchar
 
-.write_next:
 	; move to the next byte
 	inc esi
 	jmp .write
+
+	call update_hardware_cursor
 
 .write_done:
 	; return number of characters printed
@@ -114,17 +96,7 @@ endproc
 ; Puts character at current cursor position
 ; IN = al: ASCII char
 terminal_putchar:
-	call .get_offset	; return screen offset in dx	
 
- 	; default color
-	mov ah, [terminal_color]
-	; character to first byte
-	mov byte [VGA_BUFFER + edx], al
-	; set color on second byte
-	mov byte [VGA_BUFFER + edx + 1], ah
-
-	call .inc_offset
-	ret
 
 .get_offset:
 	push eax
@@ -139,8 +111,8 @@ terminal_putchar:
 	; Sanity check - bounds assume 80*25
 	; offset = (y * VGA_WIDTH * 2) + (x * 2)
 	; one buffer entry is 2 bytes (dw)
-	shl dh, 1	;	x = x*2
- 	shl dl, 1	;	y = y*2
+	shl dh, 1		;	x = x*2
+ 	shl dl, 1		;	y = y*2
 
 	mov al, VGA_WIDTH	; upper bits are 0
 	
@@ -151,32 +123,88 @@ terminal_putchar:
 	add dx, ax		; added offset x 
  
 	pop eax
+	
+	; the buffer offset is in dx
+	xor ecx, ecx		; set ecx = 1
+	inc ecx			; print one char 
+
+.tab:
+	; Check for tab
+	cmp al, 0x9
+	jne .backspace
+
+	mov al, ' '		; space
+	mov cl, 0x8		; hard coded for 8 spaces
+	movzx ecx, cl		; zero out the higher bits
+	jmp .print
+
+.backspace:
+	cmp al, 0x8
+	jne .return
+
+	; TODO Backspace logic
+	jmp .print
+
+.return:
+	cmp al, 0x0D
+	jne .linefeed
+
+	; TODO Carriage Return
+	jmp .print
+
+.linefeed:
+	; check for linefeed
+	cmp al, 0xa
+	jne .print
+	
+	mov ax, [terminal_cursor_pos]
+	mov ah, VGA_WIDTH - 1		; point to end of line
+	mov [terminal_cursor_pos], ax	; save
+	call .inc_offset		; not increment cursor
+	ret
+
+.print:
+ 	; default color
+	mov ah, byte [terminal_color]
+
+.print_loop:
+
+	; character to first byte
+	mov byte [VGA_BUFFER + edx], al
+	; set color on second byte
+	mov byte [VGA_BUFFER + edx + 1], ah
+	
+	inc edx			; to the next location
+	inc edx
+
+	call .inc_offset	; should update dx
+	loop .print_loop
+	
 	ret
 
 ; increment cursor position by one, incase end of line, wrap to next
 .inc_offset:
 	; load cursor - terminal_column at DH
 	;		terminal_row at DL
-	xor edx, edx
-	mov dx, [terminal_cursor_pos]
+	push eax
+	xor eax, eax
+	mov ax, [terminal_cursor_pos]
 	
 	; adjust cursor position
-	inc dh
-	cmp dh, VGA_WIDTH	
+	inc ah
+	cmp ah, VGA_WIDTH
 	jl .save_cursor
  	
 	; inc reached end of the line, wrap around
-	mov dh, 0
-	inc dl
+	mov ah, 0
+	inc al
 
 .check_screen_end:
 	; end of screen
-	cmp dl, VGA_HEIGHT
+	cmp al, VGA_HEIGHT
 	jl .save_cursor
  	
-	; TODO: shift screen up, dont wrap
 	; set to start of the screen
-
 .shift_screen:
 	; slide screen up shift everything left in memory
 	push esi
@@ -186,19 +214,30 @@ terminal_putchar:
 	mov edi, VGA_BUFFER
 	mov esi, edi
 	add esi, VGA_WIDTH * 2	; each character takes 2 bytes
-
 	mov ecx, (VGA_HEIGHT - 1) * VGA_WIDTH
 	repz movsw
 
 	mov ecx, VGA_WIDTH
-	xor eax, eax
+	mov ah, byte [terminal_color]
+	mov al, ' '
 	repz stosw
 
 	pop eax
 	pop ecx
 	pop esi
 
-	dec dl
+	dec al
+
+.save_cursor:
+	
+	; inc edx		; add two bytes per character position
+	; inc edx
+
+	; Store new cursor position 
+	mov [terminal_cursor_pos], ax
+	pop eax
+	ret
+
 
 
 ;	CRT Microcontroller - Index Register
@@ -229,7 +268,7 @@ terminal_putchar:
 ;	0x17	CRT Mode Control
 ;	0x18	Line Compare
 
-.save_cursor:
+update_hardware_cursor:
 	push eax
 	push ebx
 	push edx
@@ -261,22 +300,8 @@ terminal_putchar:
 	pop edx
 	pop ebx
 	pop eax
-	; Store new cursor position 
-	mov [terminal_cursor_pos], dx
 	ret
-
-; Go to start of next line
-.linefeed:
-	; load cursor - terminal_column at DH
-	;		terminal_row at DL
-	xor edx, edx
-	mov dx, [terminal_cursor_pos]
-	; start of line
-	mov dh, 0
-	; move to next line
-	inc dl
 	
-	jmp .check_screen_end
 
 ; Clear Screen
 terminal_clearscreen:
