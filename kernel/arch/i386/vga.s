@@ -29,6 +29,7 @@
 global	terminal_set_color
 global	terminal_get_color
 global	terminal_write_string
+global	terminal_write_chars
 global	terminal_clearscreen
 
 section .text
@@ -58,15 +59,49 @@ terminal_get_color:
 ; Clear Screen, reset cursor
 
 ;----------------------------------------------------------------------------
+; Write fixed numer of characters to terminal
+; IN = string location: ESI
+; IN = character count: ECX
+; Used registers - ESI, ECX
+proc terminal_write_chars, ecx, esi
+
+arg	_strloc, 4
+arg	_charcount, 4
+
+	; get string address from stack
+	mov esi, _strloc
+	mov ecx, _charcount	
+.write:
+	; load byte to print
+	mov al, [esi]
+	
+	; place character
+	call terminal_putchar
+
+	; move to the next byte
+	inc esi
+	loop .write
+
+.write_done:
+	; return number of characters printed
+	; current string loc - starting loc
+
+	call update_hardware_cursor
+	mov eax, esi
+	sub eax, _strloc
+endproc
+
+
+;----------------------------------------------------------------------------
 ; Write string to terminal
 ; IN = ESI: string location
 ; Used registers - ESI, ECX
 proc terminal_write_string, ecx, esi
 
-arg	_strloc,4
+arg	_strloc1,4
 
 	; get string address from stack
-	mov esi, _strloc
+	mov esi, _strloc1
 	
 .write:
 	; load byte to print
@@ -230,9 +265,6 @@ terminal_putchar:
 
 .save_cursor:
 	
-	; inc edx		; add two bytes per character position
-	; inc edx
-
 	; Store new cursor position 
 	mov [terminal_cursor_pos], ax
 	pop eax
@@ -269,7 +301,6 @@ terminal_putchar:
 ;	0x18	Line Compare
 
 update_hardware_cursor:
-	push eax
 	push ebx
 	push edx
 
@@ -299,31 +330,21 @@ update_hardware_cursor:
 
 	pop edx
 	pop ebx
-	pop eax
 	ret
 	
 
 ; Clear Screen
-terminal_clearscreen:
-	push edx
-	push ecx
-	push eax
-	push edi
+proc terminal_clearscreen, edx, ecx, edi
 
 	xor edx, edx
 	call terminal_putchar.save_cursor
 	
 	xor eax, eax
-	mov ecx, VGA_WIDTH * VGA_HEIGHT * 2 	
+	mov ecx, VGA_WIDTH * VGA_HEIGHT	
 	mov edi, VGA_BUFFER
-	repz stosb
+	repz stosw
 
-	pop edi
-	pop eax
-	pop ecx
-	pop edx
-	ret
-
+endproc
 	
 ;-------------------------------------------------------
 

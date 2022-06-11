@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "types.h"
 
 #define VGA_COLOR_BLACK		0
@@ -19,4 +20,5 @@
 
 uint8_t terminal_get_color(void);
 void terminal_set_color(uint8_t color);
-void terminal_write_string (char* str);
+int terminal_write_string (const char* str);
+int terminal_write_chars (const char* string, size_t count);
