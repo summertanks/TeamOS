@@ -29,6 +29,8 @@
 
 int _print(const char* string, size_t length)
 {
+	if (!length)
+		return length;
 	return terminal_write_chars (string, length);
 }
 
@@ -45,7 +47,7 @@ int printk(const char* restrict string, ...)
 		size_t offset = 1;
 		if (string[0] != '%')
 		{
-			while(string[offset] != '%' || string[offset] != '\0')
+			while((string[offset] != '%') && (string[offset] != '\0'))
 				offset++;
 			if (max < offset)
 				return -1;

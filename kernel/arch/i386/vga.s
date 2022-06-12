@@ -73,10 +73,12 @@ arg	_charcount, 4
 	mov ecx, _charcount	
 .write:
 	; load byte to print
-	mov al, [esi]
+	movzx eax, byte [esi]
 	
+	push ecx		; terminal_putchar destroys ecx
 	; place character
 	call terminal_putchar
+	pop ecx
 
 	; move to the next byte
 	inc esi
@@ -105,7 +107,7 @@ arg	_strloc1,4
 	
 .write:
 	; load byte to print
-	mov al, [esi]
+	movzx eax, byte [esi]
 
 	; Check for end of string '\0'
 	or al, al

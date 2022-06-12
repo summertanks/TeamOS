@@ -3,7 +3,7 @@ LD := ld
 ASM := nasm
 
 
-CCPARAMS  := -m32 -O1 -fno-pic -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs
+CCPARAMS  := -m32 -O0 -fno-pic -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs
 ASMPARAMS := -felf32
 LDPARAMS  := -melf_i386
 

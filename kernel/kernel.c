@@ -17,7 +17,7 @@ void _kernel_start (void) {
 	color = terminal_get_color();
 	color = color << 1;
 	terminal_set_color(color);
-	
+	printk("hi");	
 	printk("Copyright (c) 2022 Harkirat S Virk\n");
 	
 	while(1);
