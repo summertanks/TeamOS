@@ -57,7 +57,36 @@ int printk(const char* restrict string, ...)
 			written += offset;
 			continue;
 		} else {
-			string++;
+			switch(string[offset])
+			{
+				case '%':
+					string++;
+					if (!_print(string,offset))
+						return -1;
+					string += offset;
+					written += offset;
+					continue;
+				case 'c':
+					string++;
+					char c = (char) va_arg(parameters, int /* char promotes to int */);
+					if (!_print(&c,offset))
+						return -1;
+					string += offset;
+					written += offset;
+					continue;
+				case 's':
+					string++;
+					const char* str = va_arg(parameters, const char*);
+					size_t len = strlen(str);
+					if (!_print(str, len))
+						return -1;
+					string += offset;
+					written += len;
+					continue;
+				default:
+					string++;
+
+			}
 		}
 	}
 
