@@ -30,6 +30,7 @@ global	terminal_set_color
 global	terminal_get_color
 global	terminal_write_string
 global	terminal_write_chars
+global	terminal_write_hex
 global	terminal_clearscreen
 
 section .text
@@ -60,8 +61,8 @@ terminal_get_color:
 
 ;----------------------------------------------------------------------------
 ; Write hex to terminal
-; IN = string location: ESI
-; Used registers - ESI, ECX
+; IN = number to print - EAX
+; Used registers -  ECX
 proc terminal_write_hex, ecx
 
 arg	_hex, 4
@@ -73,27 +74,37 @@ arg	_hex, 4
 	call terminal_putchar
 
 	; get value to print
-	mov eax, _hex
+	mov ecx, _hex
+	or ecx, ecx
+	jne .write
+	mov eax, '0'
+	call terminal_putchar
+	jmp .write_done
+
 .write:
 	; load byte to print
-	movzx eax, byte [esi]
+	mov eax, ecx
+	and eax, 0xf0000000
+	shr eax, 0x1c		; shift to last digit
 	
-	push ecx		; terminal_putchar destroys ecx
-	; place character
+	cmp eax, 0x9
+	jg .upper
+	add eax, 0x30
+	jmp .write_digit
+.upper:
+	add eax, 0x37
+
+.write_digit:
 	call terminal_putchar
-	pop ecx
-
-	; move to the next byte
-	inc esi
-	loop .write
-
+	shl ecx, 0x4
+	or ecx, ecx
+	jnz .write_done
+	
 .write_done:
 	; return number of characters printed
 	; current string loc - starting loc
 
 	call update_hardware_cursor
-	mov eax, esi
-	sub eax, _strloc
 endproc
 
 

@@ -22,3 +22,5 @@ uint8_t terminal_get_color(void);
 void terminal_set_color(uint8_t color);
 int terminal_write_string (const char* str);
 int terminal_write_chars (const char* string, size_t count);
+int terminal_write_hex (size_t value);
+

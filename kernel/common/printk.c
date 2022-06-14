@@ -85,7 +85,9 @@ int printk(const char* restrict string, ...)
 					written += len;
 					continue;
 				case 'x':
-
+					string++;
+					const int* value = va_arg(parameters, int*);
+					terminal_write_hex (*value);
 					continue;
 				default:
 					string++;

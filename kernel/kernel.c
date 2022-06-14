@@ -8,6 +8,7 @@ struct multiboot_tag_mmap *mmap;
 void _kernel_start(void);
 
 void _kernel_start (void) {
+	char *name = "Harkirat S Virk";
 	uint8_t color;
 	color = (VGA_COLOR_BLACK << 4 | VGA_COLOR_GREEN);
 
@@ -17,7 +18,7 @@ void _kernel_start (void) {
 	color = terminal_get_color();
 	color = color << 1;
 	terminal_set_color(color);
-	printk("Copyright (c) 2022 Harkirat S Virk\n");
+	printk("Copyright (c) 2022 %s Syspro %c  at %x\n", name, name[1], name);
 	
 	while(1);
 }
