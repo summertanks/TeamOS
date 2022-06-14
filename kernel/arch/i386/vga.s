@@ -67,6 +67,9 @@ proc terminal_write_hex, ecx
 
 arg	_hex, 4
 
+	sub esp, 0x4
+	mov dword [esp] , 0x2
+
 	; print prefix 0x
 	mov eax, '0'
 	call terminal_putchar
@@ -95,16 +98,21 @@ arg	_hex, 4
 	add eax, 0x37
 
 .write_digit:
+	push ecx
 	call terminal_putchar
+	pop ecx
+	inc dword [esp]
 	shl ecx, 0x4
 	or ecx, ecx
-	jnz .write_done
+	jnz .write
 	
 .write_done:
 	; return number of characters printed
 	; current string loc - starting loc
 
 	call update_hardware_cursor
+	mov eax, dword [esp]
+	add esp, 0x4
 endproc
 
 

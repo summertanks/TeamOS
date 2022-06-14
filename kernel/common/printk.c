@@ -88,6 +88,7 @@ int printk(const char* restrict string, ...)
 					string++;
 					const int* value = va_arg(parameters, int*);
 					terminal_write_hex (*value);
+					string += offset;
 					continue;
 				default:
 					string++;

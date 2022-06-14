@@ -18,7 +18,7 @@ void _kernel_start (void) {
 	color = terminal_get_color();
 	color = color << 1;
 	terminal_set_color(color);
-	printk("Copyright (c) 2022 %s Syspro %c  at %x\n", name, name[1], name);
+	printk("Copyright (c) 2022 %s Syspro %c at %x\n", name, name[1], name);
 	
 	while(1);
 }
