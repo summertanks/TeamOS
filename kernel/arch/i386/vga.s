@@ -59,6 +59,45 @@ terminal_get_color:
 ; Clear Screen, reset cursor
 
 ;----------------------------------------------------------------------------
+; Write hex to terminal
+; IN = string location: ESI
+; Used registers - ESI, ECX
+proc terminal_write_hex, ecx
+
+arg	_hex, 4
+
+	; print prefix 0x
+	mov eax, '0'
+	call terminal_putchar
+	mov eax, 'x'
+	call terminal_putchar
+
+	; get value to print
+	mov eax, _hex
+.write:
+	; load byte to print
+	movzx eax, byte [esi]
+	
+	push ecx		; terminal_putchar destroys ecx
+	; place character
+	call terminal_putchar
+	pop ecx
+
+	; move to the next byte
+	inc esi
+	loop .write
+
+.write_done:
+	; return number of characters printed
+	; current string loc - starting loc
+
+	call update_hardware_cursor
+	mov eax, esi
+	sub eax, _strloc
+endproc
+
+
+;----------------------------------------------------------------------------
 ; Write fixed numer of characters to terminal
 ; IN = string location: ESI
 ; IN = character count: ECX
@@ -353,7 +392,8 @@ endproc
 section .data
 
 ; default color  
-	terminal_color	db 	((VGA_COLOR_BLACK << 4) | VGA_COLOR_WHITE)
+	terminal_color		db	((VGA_COLOR_BLACK << 4) | VGA_COLOR_WHITE)
+	terminal_hex_prefix	db	"0x"
 
 ;------------------------------------------------------
 

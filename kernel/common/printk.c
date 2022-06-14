@@ -26,6 +26,7 @@
 #include <stddef.h>	// for size_t
 #include <limits.h>	// for INT_MAX
 #include "../include/terminal.h"
+#include "../include/string.h"
 
 int _print(const char* string, size_t length)
 {
@@ -82,6 +83,9 @@ int printk(const char* restrict string, ...)
 						return -1;
 					string += offset;
 					written += len;
+					continue;
+				case 'x':
+
 					continue;
 				default:
 					string++;

@@ -9,7 +9,7 @@ LDPARAMS  := -melf_i386
 
 KERNOBJS = kernel.o
 ARCHOBJS = loader.o vga.o gdt.o idt.o nmi.o pic.o tss.o
-COMMONOBJS = printk.o
+COMMONOBJS = printk.o string.o
 
 OBJS += $(foreach obj, $(ARCHOBJS), $(addprefix arch/i386/, $(obj)))
 OBJS += $(foreach obj, $(COMMONOBJS), $(addprefix common/, $(obj)))
