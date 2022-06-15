@@ -60,15 +60,15 @@ terminal_get_color:
 ; Clear Screen, reset cursor
 
 ;----------------------------------------------------------------------------
-; Write hex to terminal
+; Write register in hex format on terminal
 ; IN = number to print - EAX
 ; Used registers -  ECX
 proc terminal_write_hex, ecx
 
 arg	_hex, 4
 
-	sub esp, 0x4
-	mov dword [esp] , 0x2
+	sub esp, 0x4			; TODO : convert to macro
+	mov dword [esp] , 0x2		; Saving Variable - prefix is 02 chars
 
 	; print prefix 0x
 	mov eax, '0'
@@ -76,35 +76,37 @@ arg	_hex, 4
 	mov eax, 'x'
 	call terminal_putchar
 
-	; get value to print
-	mov ecx, _hex
-	or ecx, ecx
+	; get value to print		
+	mov ecx, _hex			; get mumber
+	or ecx, ecx			; check if zero
 	jne .write
-	mov eax, '0'
+	mov eax, '0'			; value was 0x0
 	call terminal_putchar
+	inc [esp]			; increment counter
 	jmp .write_done
 
 .write:
 	; load byte to print
-	mov eax, ecx
-	and eax, 0xf0000000
-	shr eax, 0x1c		; shift to last digit
+	mov eax, ecx			; 
+	and eax, 0xf0000000		; just the first digit
+	shr eax, 0x1c			; shift to last digit
 	
-	cmp eax, 0x9
+	cmp eax, 0x9			; if < 10
 	jg .upper
-	add eax, 0x30
+	add eax, 0x30			; ascii 0-9 : 0x30 - 0x39
 	jmp .write_digit
 .upper:
-	add eax, 0x37
+	add eax, 0x37			; if > 10 A-F : 0x41 - 0x46
+					; 0x41 - 0x0A = 0x37 
 
 .write_digit:
-	push ecx
+	push ecx			; terminal_putchar destroys ecx
 	call terminal_putchar
 	pop ecx
-	inc dword [esp]
-	shl ecx, 0x4
-	or ecx, ecx
-	jnz .write
+	inc dword [esp]			; inc print character count
+	shl ecx, 0x4			; shift to next digit, one digit is 4 bits
+	or ecx, ecx			; is zero?
+	jnz .write			; continue to next digit
 	
 .write_done:
 	; return number of characters printed
@@ -176,15 +178,21 @@ arg	_strloc1,4
 
 	; move to the next byte
 	inc esi
-	jmp .write
+	jnc .write		; wrap arround - crossed 0xffffffff
+
+	dec esi			; back to 0xffffffff
+	mov eax, esi		; which is also = -1
+	jmp .exit		; quit with error
 
 .write_done:
 	; return number of characters printed
 	; current string loc - starting loc
-
-	call update_hardware_cursor
 	mov eax, esi
 	sub eax, _strloc
+
+.exit
+	call update_hardware_cursor
+
 endproc
 
 ;-----------------------------------------------------------------------------
