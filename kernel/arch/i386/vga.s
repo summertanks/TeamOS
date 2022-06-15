@@ -82,7 +82,7 @@ arg	_hex, 4
 	jne .write
 	mov eax, '0'			; value was 0x0
 	call terminal_putchar
-	inc [esp]			; increment counter
+	inc dword [esp]			; increment counter
 	jmp .write_done
 
 .write:
@@ -125,11 +125,11 @@ endproc
 ; Used registers - ESI, ECX
 proc terminal_write_chars, ecx, esi
 
-arg	_strloc, 4
+arg	_charloc, 4
 arg	_charcount, 4
 
 	; get string address from stack
-	mov esi, _strloc
+	mov esi, _charloc
 	mov ecx, _charcount	
 .write:
 	; load byte to print
@@ -150,7 +150,7 @@ arg	_charcount, 4
 
 	call update_hardware_cursor
 	mov eax, esi
-	sub eax, _strloc
+	sub eax, _charloc
 endproc
 
 
@@ -160,10 +160,10 @@ endproc
 ; Used registers - ESI, ECX
 proc terminal_write_string, ecx, esi
 
-arg	_strloc1,4
+arg	_strloc, 4
 
 	; get string address from stack
-	mov esi, _strloc1
+	mov esi, _strloc
 	
 .write:
 	; load byte to print
@@ -177,6 +177,7 @@ arg	_strloc1,4
 	call terminal_putchar
 
 	; move to the next byte
+	clc
 	inc esi
 	jnc .write		; wrap arround - crossed 0xffffffff
 
@@ -190,7 +191,7 @@ arg	_strloc1,4
 	mov eax, esi
 	sub eax, _strloc
 
-.exit
+.exit:
 	call update_hardware_cursor
 
 endproc
