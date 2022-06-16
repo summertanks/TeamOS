@@ -183,7 +183,7 @@ _start:
 	jge .next_tag
 	mov esi, ebp 
 	add esi, multiboot_tag_header.size
-	mov edi, multiboot.boot_loader
+	mov edi, multiboot_boot_loader
 	repnz movsb
 	jmp .next_tag
 	
@@ -262,7 +262,7 @@ missing_magic	db	"FATAL: Incorrect Multiboot Magic, Halting...", 0xA, 0
 section .bss
 
 	global multiboot
-
+	global multiboot_boot_loader 
 ALIGN 8
 multiboot:
 	.data_magic	resq	1
@@ -272,8 +272,9 @@ multiboot:
 	.bios_part	resq	1
 	.bios_subpart	resq	1
 	.mmap		resb	MAX_MMAP_SIZE	; lets hope that is sufficient 0x400
-	.boot_loader	resb	MAX_STR_SIZE
 	.command_line	resb	MAX_STR_SIZE
+
+multiboot_boot_loader:	resb	MAX_STR_SIZE
 
 ; stack on x86 must be 16-byte aligned - System V ABI standard
 ALIGN 16

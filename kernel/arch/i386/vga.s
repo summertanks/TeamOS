@@ -103,10 +103,11 @@ arg	_hex, 4
 	push ecx			; terminal_putchar destroys ecx
 	call terminal_putchar
 	pop ecx
-	inc dword [esp]			; inc print character count
 	shl ecx, 0x4			; shift to next digit, one digit is 4 bits
-	or ecx, ecx			; is zero?
-	jnz .write			; continue to next digit
+	inc dword [esp]			; inc print character count
+	mov eax, dword [esp]
+	cmp eax, 0xa			; is zero?
+	jne .write			; continue to next digit
 	
 .write_done:
 	; return number of characters printed
