@@ -19,7 +19,7 @@ void _kernel_start (void) {
 	color = terminal_get_color();
 	color = color << 1;
 	terminal_set_color(color);
-	printk("Copyright (c) 2022 Syspro Harkirat S Virk\n");
+	printk("Copyright (c) 2022 Harkirat S Virk\n");
 	
 	//-------------------------------------------------------------------
 	printk("Booting from bootloader - %s\n", &multiboot_boot_loader);

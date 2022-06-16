@@ -155,6 +155,10 @@ _start:
 
 .magic_check_ok:
 
+	; Lets copy the header out
+	;mov ecx, multiboot_info_header.header_size
+	;mov esi, 
+
 	; Total header size not really required, we assume the header to 
 	; well formed, that is, have MULTIBOOT_TAG_END tag and the sizes match
 	; Also if one isnt, no assurances that the other would be 
@@ -263,7 +267,10 @@ section .bss
 
 	global multiboot
 	global multiboot_boot_loader 
-ALIGN 8
+ALIGN 16
+multiboot_header:	resb	0x4000
+
+ALIGN 16
 multiboot:
 	.data_magic	resq	1
 	.mem_lower	resq	1
