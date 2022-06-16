@@ -6,6 +6,7 @@
 extern size_t multiboot_boot_loader;
 
 struct multiboot_tag_mmap *mmap;
+struct multiboot_tag_string *bootloader_name;
 
 void _kernel_start(void);
 
@@ -22,6 +23,6 @@ void _kernel_start (void) {
 	printk("Copyright (c) 2022 Harkirat S Virk\n");
 	
 	//-------------------------------------------------------------------
-	printk("Booting from bootloader - %s\n", &multiboot_boot_loader);
+	printk("Booting from bootloader - %s\n", bootloader_name->string);
 	while(1);
 }

@@ -45,6 +45,8 @@
 	extern __BSS_START
 	extern __BSS_END
 
+	extern bootloader_name
+
 [BITS 32]
 section .multiboot
 
@@ -156,13 +158,15 @@ _start:
 .magic_check_ok:
 
 	; Lets copy the header out
-	;mov ecx, multiboot_info_header.header_size
-	;mov esi, 
+	mov ecx, [ebp + multiboot_info_header.header_size]
+	mov esi, ebp
+	mov edi, multiboot_hdr
+	rep movsb	
 
 	; Total header size not really required, we assume the header to 
 	; well formed, that is, have MULTIBOOT_TAG_END tag and the sizes match
 	; Also if one isnt, no assurances that the other would be 
-	
+	mov ebp, multiboot_hdr
 	add ebp, multiboot_info_header.size	; should get us to the first tag
 
 	; loop through tags, could have done it in serial manner but
@@ -189,6 +193,8 @@ _start:
 	add esi, multiboot_tag_header.size
 	mov edi, multiboot_boot_loader
 	repnz movsb
+
+	mov [bootloader_name], ebp
 	jmp .next_tag
 	
 .tag_4:	; case 4: Basic Meminfo
@@ -268,7 +274,7 @@ section .bss
 	global multiboot
 	global multiboot_boot_loader 
 ALIGN 16
-multiboot_header:	resb	0x4000
+multiboot_hdr:		resb	0x4000
 
 ALIGN 16
 multiboot:
