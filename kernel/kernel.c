@@ -3,10 +3,9 @@
 #include "include/types.h"
 #include "include/printk.h"
 
-extern size_t multiboot_boot_loader;
-
-struct multiboot_tag_mmap *mmap;
-struct multiboot_tag_string *bootloader_name;
+struct multiboot_tag_mmap 		*multiboot_mmap;
+struct multiboot_tag_string 		*multiboot_bootloader;
+struct multiboot_tag_basic_meminfo	*multiboot_basic_meminfo;
 
 void _kernel_start(void);
 
@@ -23,6 +22,7 @@ void _kernel_start (void) {
 	printk("Copyright (c) 2022 Harkirat S Virk\n");
 	
 	//-------------------------------------------------------------------
-	printk("Booting from bootloader - %s\n", bootloader_name->string);
+	printk("Booting from bootloader - %s\n", multiboot_bootloader->string);
+	printk("Memory Lower %x - Memory Upper %x", multiboot_basic_meminfo-> mem_lower, multiboot_basic_meminfo->mem_upper);
 	while(1);
 }

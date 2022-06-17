@@ -45,7 +45,8 @@
 	extern __BSS_START
 	extern __BSS_END
 
-	extern bootloader_name
+	extern multiboot_bootloader
+	extern multiboot_basic_meminfo
 
 [BITS 32]
 section .multiboot
@@ -185,26 +186,16 @@ _start:
 	cmp eax, MULTIBOOT_TAG_TYPE_BOOT_LOADER_NAME
 	jne .tag_4
 
-	mov ecx, [ebp + multiboot_tag_name.tag_size]
-	; Sanity Check - max size given yet is MAX_STR_SIZE
-	cmp ecx, MAX_STR_SIZE
-	jge .next_tag
-	mov esi, ebp 
-	add esi, multiboot_tag_header.size
-	mov edi, multiboot_boot_loader
-	repnz movsb
-
-	mov [bootloader_name], ebp
+	; save pointer
+	mov [multiboot_bootloader], ebp
 	jmp .next_tag
 	
 .tag_4:	; case 4: Basic Meminfo
 	cmp eax, MULTIBOOT_TAG_TYPE_BASIC_MEMINFO
 	jne .tag_5
 
-	mov ebx, [ebp + multiboot_tag_basic_meminfo.mem_lower]
-	mov [multiboot.mem_lower], ebx
-	mov ebx, [ebp + multiboot_tag_basic_meminfo.mem_upper]
-	mov [multiboot.mem_upper], ebx
+	; save pointer
+	mov [multiboot_basic_meminfo],ebp
 	jmp .next_tag
 	
 .tag_5:	; case 5: Boot device
