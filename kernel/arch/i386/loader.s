@@ -47,6 +47,8 @@
 
 	extern multiboot_bootloader
 	extern multiboot_basic_meminfo
+	extern multiboot_bootdev
+	extern multiboot_mmap
 
 [BITS 32]
 section .multiboot
@@ -202,12 +204,7 @@ _start:
 	cmp eax, MULTIBOOT_TAG_TYPE_BOOTDEV
 	jne .tag_6
 
-	mov ebx, [ebp + multiboot_tag_bootdev.biosdev]
-	mov [multiboot.bios_dev], ebx
-	mov ebx, [ebp + multiboot_tag_bootdev.part]
-	mov [multiboot.bios_part], ebx
-	mov ebx, [ebp + multiboot_tag_bootdev.subpart]
-	mov [multiboot.bios_subpart], ebx
+	mov [multiboot_bootdev], ebp
 	jmp .next_tag
 
 .tag_6:	; case 6: Memory Map
@@ -215,13 +212,7 @@ _start:
 	cmp eax, MULTIBOOT_TAG_TYPE_MMAP
 	jne .next_tag
 
-	mov ecx, [ebp + multiboot_tag_mmap.tag_size]
-	; sanity check - max size given yet is MAX_MMAP_SIZE
-	cmp ecx, MAX_MMAP_SIZE
-	jge .next_tag
-	mov esi, ebp
-	mov edi, multiboot.mmap
-	repnz movsb 
+	mov [multiboot_mmap], ebp
 	jmp .next_tag
 
 .next_tag:

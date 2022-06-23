@@ -27,6 +27,8 @@ _setgdt:
 	mov cx, 0x20 ;; GS seg
 	mov gs, cx
 	ret
+
+section .data
 	
 ALIGN 32
 
@@ -42,7 +44,14 @@ gdt32:
 	;; Entry 0x0: Null descriptor
 	;; First seg desc is expected to be NULL  
 	dq 0x0
-	
+
+	; dw limit_low		- The lower 16 bits of the limit.
+	; dw base_low		- The lower 16 bits of the base.
+	; db base_middle	- The next 8 bits of the base.
+	; dw access		- Access flags, determine what ring this segment can be used in.
+	;	granularity;
+	; db base_high		- The last 8 bits of the base.	
+
 	;; Kernel Code Segment  
 	;; Entry 0x8: Code segment
 	dw 0xffff          ;Limit
