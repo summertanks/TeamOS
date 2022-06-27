@@ -41,9 +41,6 @@ ALIGN 32
 gdt32:
 	;; TODO: Make Non overlapping
 
-	;; Entry 0x0: Null descriptor
-	;; First seg desc is expected to be NULL  
-	dq 0x0
 
 	; Base: 32 bit value containing the linear address where the segment begins.
 	; Limit: 20-bit value, tells the maximum addressable unit, either in 1 byte units, or in 4KiB pages.
@@ -110,38 +107,47 @@ gdt32:
 	;
 	; db base_high		- The last 8 bits of the base (31:24)
 
+
+	;; Entry 0x0: Null descriptor
+	;; First seg desc is expected to be NULL  
+	dq 0x0
+
 	;; Kernel Code Segment  
 	;; Entry 0x8: Code segment
 	;; Base - 0x00000000
-	;; Limit - 0xffff
-	dw 0xffff          ;Limit
-	dw 0x0000          ;Base 15:00
-	db 0x00            ;Base 23:16
-	dw 0xcf9a          ;Flags / Limit / Type [F,L,F,Type]
-	db 0x00            ;Base 32:24
+	;; Limit - 0xfffff
+	dw 0xffff	; Limit(15:00)
+	dw 0x0000	; Base (15:00)
+	db 0x00		; Base (23:16)
+	db 0x9a		; Access - 10011010b  P(1) DPL(00) S(1) E(1) DC(0) RW(1) A(0) 
+	db 0xcf		; Flags - 1100b G(1) DB(1) L(0) Reserved(0) / Limit (19:16)
+	db 0x00		; Base (31:24)
   
 	;; Kernel Data Segment
 	;; Entry 0x10: Data segment
-	dw 0xffff          ;Limit
-	dw 0x0000          ;Base 15:00
-	db 0x00            ;Base 23:16
-	dw 0xcf92          ;Flags / Limit / Type [F,L,F,Type]
-	db 0x00            ;Base 32:24
+	dw 0xffff	; Limit (15:00)
+	dw 0x0000	; Base (15:00)
+	db 0x00		; Base (23:16)
+	db 0x92		; Access - 10011010b  P(1) DPL(00) S(1) E(0) DC(0) RW(1) A(0) 
+	db 0xcf		; Flags - 1100b G(1) DB(1) L(0) Reserved(0) / Limit (19:16)
+	db 0x00		; Base (31:24)
   
 	;; User Code Segment
 	;; Entry 0x18: Code segment
-	dw 0x0100          ;Limit
-        dw 0x1000          ;Base 15:00
-        db 0x00            ;Base 23:16
-        dw 0x409a          ;Flags / Limit / Type [F,L,F,Type]
-        db 0x00            ;Base 32:24
+	dw 0xffff	; Limit (15:00)
+        dw 0x0000	; Base (15:00)
+        db 0x00		; Base (23:16)
+	db 0xfa		; Access - 10011010b  P(1) DPL(11) S(1) E(1) DC(0) RW(1) A(0) 
+        db 0xcf		; Flags - 1100b G(1) DB(1) L(0) Reserved(0) / Limit (19:16)
+        db 0x00		; Base (31:24)
 
 	;; User Data Segment
 	;; Entry 0x20: Data segment
-	dw 0x0100          ;Limit
-	dw 0x1000          ;Base 15:00
-	db 0x00            ;Base 23:16
-	dw 0x4092          ;Flags / Limit / Type [F,L,F,Type]
-	db 0x00            ;Base 32:24
+	dw 0xffff	; Limit (15:00)
+	dw 0x0000	; Base (15:00)
+	db 0x00		; Base (23:16)
+	db 0xf2		; Access - 10011010b  P(1) DPL(11) S(1) E(1) DC(0) RW(1) A(0) 
+	db 0xcf		; Flags - 1100b G(1) DB(1) L(0) Reserved(0) / Limit (19:16)
+	db 0x00		; Base (31:24)
 
 gdt32_end:

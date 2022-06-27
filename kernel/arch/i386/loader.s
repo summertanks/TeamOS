@@ -39,9 +39,10 @@
 	%include "include/arch/common/multiboot2.inc"
 
 ; external references - functions / definations
-	extern	terminal_write_string
-	extern	_kernel_start
-	extern	gdt32
+	extern terminal_write_string
+	extern _kernel_start
+	extern _setgdt
+	extern gdt32
 	extern __BSS_START
 	extern __BSS_END
 
@@ -232,7 +233,10 @@ _start:
 .tag_done:
 	pop ebp
 
-	; 
+	; Setting GDT
+	call _setgdt
+
+	; jmp to C file 
 	call	_kernel_start
 	; should never reach here
 halt:

@@ -86,6 +86,23 @@
 
 ; CPU does not permit an interrupt to transfer control to a procedure in a segment of lesser privilege
 
+%macro isr_noerr_code 1
+global isr%1
+isr%1:
+	cli
+	push byte 0
+	push byte %1
+	jmp isr_common_stub
+%endmacro
+
+%macro isr_err_code 1
+global isr%1
+isr%1:
+	cli
+	push byte %1
+	jmp isr_common_stub
+%endmacro
+
 struc idt
 .offset_high	resw	1
 .offset_low	resw	1
@@ -96,8 +113,74 @@ endstruc
 section .text
 	global _setidt
 
+isr_noerr_code	0	; Divide-by-zero exception
+isr_noerr_code	1	; Debug exception
+isr_noerr_code	2	; Non Maskable Interrupt Exception
+isr_noerr_code	3	; Breakpoint Exception
+isr_noerr_code	4	; Into Detected Overflow Exception
+isr_noerr_code	5	; Out of Bounds Exception
+isr_noerr_code	6	; Invalid Opcode Exception
+isr_noerr_code	7	; No Coprocessor Exception
+isr_err_code	8	; Double Fault Exception
+isr_noerr_code	9	; Coprocessor Segment Overrun Exception
+isr_err_code	10	; Bad TSS Exception
+isr_err_code	11	; Segment Not Present Exception
+isr_err_code	12	; Stack Fault Exception
+isr_err_code	13	; General Protection Fault Exception
+isr_err_code	14	; Page Fault Exception
+isr_noerr_code	15	; Unknown Interrupt Exception
+isr_noerr_code	16	; Coprocessor Fault Exception
+isr_noerr_code	17	; Alignment Check Exception (486+)
+isr_noerr_code	18	; Machine Check Exception (Pentium/586+)
+isr_noerr_code	19	; Reserved
+isr_noerr_code	20	; Reserved
+isr_noerr_code	21	; Reserved
+isr_noerr_code	22	; Reserved
+isr_noerr_code	23	; Reserved
+isr_noerr_code	24	; Reserved
+isr_noerr_code	25	; Reserved
+isr_noerr_code	26	; Reserved
+isr_noerr_code	27	; Reserved
+isr_noerr_code	28	; Reserved
+isr_noerr_code	29	; Reserved
+isr_noerr_code	30	; Reserved
+isr_noerr_code	31	; Reserved
+
+
 _setidt:
 	ret
+
+isr_common_stub:
+	pusha
+	; save segments	
+	push ds
+	push es
+	push fs
+	push gs
+
+	; load kernel segments
+	mov ax, 0x10
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+
+	; save stack
+	mov eax, esp
+	push eax
+
+	; call handler
+	lea eax, _isr_handler
+	call eax
+	pop eax
+
+	pop gs
+	pop fs
+	pop es
+	pop ds
+	popa
+	add esp, 0x8	; cleans up pushed error code / irq number
+	iret
 
 section	.bss
 ;	idt_null	0
