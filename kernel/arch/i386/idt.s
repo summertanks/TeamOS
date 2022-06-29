@@ -1,5 +1,25 @@
 ; Team OS
-; Copyright (c) 2022 Harkirat S Virk
+; MIT License
+
+; Copyright (c) 2022 Harkirat Singh Virk
+
+; Permission is hereby granted, free of charge, to any person obtaining a copy
+; of this software and associated documentation files (the "Software"), to deal
+; in the Software without restriction, including without limitation the rights
+; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the Software is
+; furnished to do so, subject to the following conditions:
+
+; The above copyright notice and this permission notice shall be included in all
+; copies or substantial portions of the Software.
+
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+; SOFTWARE.
 
 ; Interrupts give the ability to respond to synchronous and asynchronous events
 ; Broadly there are
@@ -79,10 +99,10 @@
 ; Stack state
 
 ; Without Priviledge Transistion
-; <Old SS:ESP> | Old EFLAGS (16) | xxxx (8) Old CS(8) | Old EIP (16) | Error Code (16) | <New SS:ESP>
+; <Old SS:ESP> | Old EFLAGS (16) | xxxx (8) Old CS(8) | Old EIP (16) | Error Code (16) | <Current SS:ESP>
 
 ; With Priviledge Transistion
-; <Old SS:ESP> | xxxx (8) Old SS (8) | Old ESP (16) | Old EFLAGS (16) | xxxx (8) Old CS(8) | Old EIP (16) | Current SS:ESP
+; <Old SS:ESP> | xxxx (8) Old SS (8) | Old ESP (16) | Old EFLAGS (16) | xxxx (8) Old CS(8) | Old EIP (16) | <Current SS:ESP>
 
 ; CPU does not permit an interrupt to transfer control to a procedure in a segment of lesser privilege
 
@@ -111,6 +131,9 @@ struc idt
 endstruc
 
 section .text
+	
+	extern isr_handler
+
 	global _setidt
 
 isr_noerr_code	0	; Divide-by-zero exception
@@ -151,7 +174,8 @@ _setidt:
 	ret
 
 isr_common_stub:
-	pusha
+	pushad		; pushad = push eax, ecx, edx, ebx, esp, ebp, esi, edi
+
 	; save segments	
 	push ds
 	push es
@@ -165,20 +189,16 @@ isr_common_stub:
 	mov fs, ax
 	mov gs, ax
 
-	; save stack
-	mov eax, esp
-	push eax
-
 	; call handler
-	lea eax, _isr_handler
+	lea eax, isr_handler
 	call eax
-	pop eax
 
 	pop gs
 	pop fs
 	pop es
 	pop ds
-	popa
+	popad
+
 	add esp, 0x8	; cleans up pushed error code / irq number
 	iret
 

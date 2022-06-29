@@ -7,7 +7,7 @@ CCPARAMS  := -m32 -O0 -fno-pic -fno-builtin -fno-exceptions -fno-stack-protector
 ASMPARAMS := -felf32
 LDPARAMS  := -melf_i386
 
-KERNOBJS = kernel.o
+KERNOBJS = kernel.o interrupt.o
 ARCHOBJS = loader.o vga.o gdt.o idt.o nmi.o pic.o tss.o
 COMMONOBJS = printk.o string.o
 

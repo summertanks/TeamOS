@@ -22,19 +22,24 @@
 ; SOFTWARE.
 */
 
-#ifndef __TYPES_H
-#define __TYPES_H
+#include "include/types.h"
+#include "include/printk.h"
 
-typedef char int8_t;
-typedef unsigned char uint8_t;
+typedef struct registers
+{
+	uint16_t gs, fs, es, ds;				// Data segment selector
+	uint16_t edi, esi, ebp, esp, ebx, edx, ecx, eax;	// Pushed by pusha.
+	uint16_t int_no, err_code;    				// Interrupt number and error code
+	uint16_t eip, cs, eflags, useresp, ss; 			// Pushed by the processor automatically.
+} registers_t;
 
-typedef short int16_t;
-typedef unsigned short uint16_t;
+void isr_handler(registers_t reg)
+{
+	printk("Interrupt called:\n");
+	printk("gs: %x fs: %x es: %x ds: %x\n", reg.gs, reg.fs, reg.es, reg.ds);
+	printk("eax: %x ebx: %x ecx: %x edx: %x\n", reg.eax, reg.ebx,reg.ecx, reg.edx);
+	printk("esp: %x ebp: %x esi: %x edi: %x\n", reg.esp, reg.ebp, reg.esi, reg.edi);
+	printk("cs:eip %x:%x eflags %x user ss:esp %x:%x\n", reg.cs, reg.eip, reg.eflags, reg.ss, reg.useresp);
+	printk("Interrupt No %x | Error Code %x\n", reg.int_no, reg.err_code);
+}
 
-typedef int int32_t;
-typedef unsigned int uint32_t;
-
-typedef long long int int64_t;
-typedef unsigned long long int uint64_t;
-
-#endif
