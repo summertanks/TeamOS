@@ -28,10 +28,6 @@
 ;	Exception - Processor (Fault, Traps & Aborts) & Programmed
 
 ; NMI and Exception range from 0 to 31 (0x0 - 0x1F)
-; Faults - caused before the instruction is executed, permits restart
-; Traps - Exception reported after the instruction
-; Aborts - unrecoverable severe errors (including hardware)
-
 ; 0            Divide error
 ; 1            Debug exceptions
 ; 2            Nonmaskable interrupt
@@ -51,6 +47,10 @@
 ; 16           Coprecessor error
 ; 17-31        (reserved)
 
+
+; Faults - caused before the instruction is executed, permits restart
+; Traps - Exception reported after the instruction
+; Aborts - unrecoverable severe errors (including hardware)
 ; IF Flag - for maskable interrupts via external INTr Pin
 ;         - if CPL <= IOPL. A protection exception occurs when CPL > IOPL
 ;	  - Task switches, POPF and IRET load the flags register - modifies IF
@@ -64,6 +64,10 @@
 
 ; Trap gates cause TF to be reset after the current value of TF is saved on 
 ; the stack as part of EFLAGS - IRET instruction restores TF to the value in the EFLAGS
+
+; Trap Gates and Interrupt Gates are similar, and their descriptors are structurally the same, 
+; differing only in the Gate Type field. The difference is that for Interrupt Gates, interrupts 
+; are automatically disabled upon entry and reenabled upon IRET, whereas this does not occur for Trap Gates
 
 ;                                80386 TASK GATE
 ;   31                23                15                7                0
@@ -96,11 +100,10 @@
 ;  |###################################|                             |I| |X|
 ;  +---------------+-------------------+-----------------+-----------+-+-+-+
 ;  Ext - External Event, TI - Referes to GDT/LDT, I - Index refers to gate desc (IDT)
-; Stack state
 
+; Stack state
 ; Without Priviledge Transistion
 ; <Old SS:ESP> | Old EFLAGS (16) | xxxx (8) Old CS(8) | Old EIP (16) | Error Code (16) | <Current SS:ESP>
-
 ; With Priviledge Transistion
 ; <Old SS:ESP> | xxxx (8) Old SS (8) | Old ESP (16) | Old EFLAGS (16) | xxxx (8) Old CS(8) | Old EIP (16) | <Current SS:ESP>
 
