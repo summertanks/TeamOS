@@ -28,6 +28,7 @@
 ;	Exception - Processor (Fault, Traps & Aborts) & Programmed
 
 ; NMI and Exception range from 0 to 31 (0x0 - 0x1F)
+; description at https://www.logix.cz/michal/doc/i386/chp09-08.htm
 ; 0            Divide error
 ; 1            Debug exceptions
 ; 2            Nonmaskable interrupt
