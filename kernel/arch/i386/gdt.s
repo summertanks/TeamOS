@@ -30,18 +30,16 @@ ALIGN 8
 _setgdt:
 	; load simple GDT
 	lgdt [gdtr]
-
 	; long jump to enable GDT
 	; seg 0x8 - first entry to GDT - Kernel Code
-	jmp 0x8:.enable_gdt
+	jmp 0x8:.flush_gdt
 
-.enable_gdt:
+.flush_gdt:
 	mov cx, 0x10 ;; data seg
  	mov ss, cx
 	mov ds, cx
 	mov es, cx
 	mov fs, cx
-	
 	mov cx, 0x20 ;; GS seg
 	mov gs, cx
 	ret
@@ -59,7 +57,25 @@ ALIGN 32
 gdt32:
 	;; TODO: Make Non overlapping
 
+	;; Segments
+	; A segment selector is the unique identifier of a segment and is used in the first part of logical address.
+	; Segments - CS - Code Seg, DS - Data Seg, SS - Stack Seg, ES - Extra Seg, FS/GS - General Purpose Seg
+	;	15				3    2     0
+	;	+-------------------------------+----+-----+
+	;	|	Offset (index)		| ti | rpl |
+	;	+-------------------------------+----+-----+
+	;	ti : Table Indicator, 0 - GDT, 1 - LDT
+	;	rpl: Requested privilege level, 2 bits
+	;
+	; LDT - An LDT is set up and managed by user-space processes, and all processes have their own LDT. 
+	;	There will be generally one LDT per user process, describing privately held memory. 
+	;	The operating system will switch the current LDT when scheduling a new process, 
+	;	using the LLDT machine instruction or when using a TSS.
+	; GDT - The Global Descriptor Table (GDT) defines the characteristics of the various memory areas called as segments, 
+	;	used during program execution, including the base address, the size, and access privileges like executability and writability. 
 
+	;; Segment Descriptors
+	; 
 	; Base: 32 bit value containing the linear address where the segment begins.
 	; Limit: 20-bit value, tells the maximum addressable unit, either in 1 byte units, or in 4KiB pages.
 
@@ -119,6 +135,7 @@ gdt32:
 	;					If clear (0), the descriptor defines a 16-bit protected mode segment. 
 	;					If set (1) it defines a 32-bit protected mode segment. 
 	;					A GDT can have both 16-bit and 32-bit selectors at once.
+	;
 	;			- L	(1 bit) Long-mode code flag. 
 	;					If set (1), the descriptor defines a 64-bit code segment. When set, DB should always be clear. 
 	;					For any other type of segment (other code types or any data segment), it should be clear (0).
